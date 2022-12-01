@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/ExamPlanner.iml" filepath="$PROJECT_DIR$/.idea/ExamPlanner.iml" />
+      <module fileurl="file://$PROJECT_DIR$/back/react-and-spring-data-rest.iml" filepath="$PROJECT_DIR$/back/react-and-spring-data-rest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/back/basic/react-and-spring-data-rest-basic.iml" filepath="$PROJECT_DIR$/back/basic/react-and-spring-data-rest-basic.iml" />
+      <module fileurl="file://$PROJECT_DIR$/back/conditional/react-and-spring-data-rest-conditional.iml" filepath="$PROJECT_DIR$/back/conditional/react-and-spring-data-rest-conditional.iml" />
+      <module fileurl="file://$PROJECT_DIR$/back/events/react-and-spring-data-rest-events.iml" filepath="$PROJECT_DIR$/back/events/react-and-spring-data-rest-events.iml" />
+      <module fileurl="file://$PROJECT_DIR$/back/hypermedia/react-and-spring-data-rest-hypermedia.iml" filepath="$PROJECT_DIR$/back/hypermedia/react-and-spring-data-rest-hypermedia.iml" />
+      <module fileurl="file://$PROJECT_DIR$/back/security/react-and-spring-data-rest-security.iml" filepath="$PROJECT_DIR$/back/security/react-and-spring-data-rest-security.iml" />
+    </modules>
+  </component>
+</project>
