@@ -1,5 +1,5 @@
 /* This example requires Tailwind CSS v2.0+ */
-import { Fragment, useEffect, useRef } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, DotsHorizontalIcon } from '@heroicons/react/solid'
 import { Menu, Transition } from '@headlessui/react'
 
@@ -11,23 +11,24 @@ export default function Example() {
   const container = useRef(null)
   const containerNav = useRef(null)
   const containerOffset = useRef(null)
+  const [name, setName] = useState([]);
 
   useEffect(() => {
     // Set the container scroll position based on the current time.
     const currentMinute = new Date().getHours() * 60
-    container.current.scrollTop =
-      ((container.current.scrollHeight - containerNav.current.offsetHeight - containerOffset.current.offsetHeight) *
-        currentMinute) /
-      1440
+    container.current.scrollTop = ((container.current.scrollHeight - containerNav.current.offsetHeight - containerOffset.current.offsetHeight) * currentMinute) / 1440
+    names()
   }, [])
 
+  const names = async () => {
+      const resp = await fetch("http://172.20.10.4:8001/api/creneaus");
+      setName(await resp.json())
+  }
   return (
     <div className="flex h-full flex-col">
       <header className="relative z-20 flex flex-none items-center justify-between border-b border-gray-200 py-4 px-6">
         <h1 className="text-lg font-semibold text-gray-900">
-            <h2 className="text-xs text-red-600 font-semibold tracking-wide uppercase">
-                      Planning CY Tech - Semestre 2
-                      </h2>
+            <h2 className="text-xs text-red-600 font-semibold tracking-wide uppercase">Planning CY TECH</h2>
           <time dateTime="2022-01">January 2022</time>
         </h1>
         <div className="flex items-center">
@@ -244,6 +245,7 @@ export default function Example() {
           </Menu>
         </div>
       </header>
+
       <div ref={container} className="flex flex-auto flex-col overflow-auto bg-white">
         <div style={{ width: '165%' }} className="flex max-w-full flex-none flex-col sm:max-w-none md:max-w-full">
           <div
@@ -491,6 +493,25 @@ export default function Example() {
                 className="col-start-1 col-end-2 row-start-1 grid grid-cols-1 sm:grid-cols-7 sm:pr-8"
                 style={{ gridTemplateRows: '1.75rem repeat(288, minmax(0, 1fr)) auto' }}
               >
+                <li className="relative mt-px flex sm:col-start-3" style={{ gridRow: '8 / span 6' }}>
+                  <a
+                    href="#"
+                    className="group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-green-50 p-2 text-xs leading-5 hover:bg-green-100"
+                  >
+                    <p className="order-1 font-semibold text-green-700">Breakfast</p>
+                    <p className="text-green-500 green-hover:text-blue-700">
+                      <time dateTime="2022-01-12T06:00">6:00 AM</time>
+                    </p>
+                  </a>
+                </li>
+                { 
+                
+                name._embedded["indisponibilites"].map((data) => {
+                  return(
+                    <p>{data.debut}</p>
+                  )
+                })
+                }
                 <li className="relative mt-px flex sm:col-start-3" style={{ gridRow: '74 / span 12' }}>
                   <a
                     href="#"
