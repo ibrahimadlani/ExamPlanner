@@ -1,6 +1,7 @@
 package com.greglturnquist.payroll.Model;
 
 import javax.persistence.Entity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,17 +16,15 @@ public class Fermeture extends Creneau{
         this.heure = heure;
         this.minute = minute;
 
-        /*
+
         if(matin){
-            this.setDebut(new Date(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getMinutes(), 0,0));
+            this.setDebut(LocalDateTime.of(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getMinute(), 0,0));
             this.setDuree_min(heure*60+minute);
         }
         else {
-            this.setDebut(new Date(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getMinutes(), this.heure,this.minute));
+            this.setDebut(LocalDateTime.of(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getMinute(), this.heure,this.minute));
             this.setDuree_min(1440 - heure * 60 + minute); }
             this.setFin(this.addMinutesToDate(this.getDuree_min(), this.getDebut()));
-
-         */
     }
 
     public Fermeture() {
