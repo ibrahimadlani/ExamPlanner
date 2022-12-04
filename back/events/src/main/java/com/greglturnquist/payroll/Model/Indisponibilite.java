@@ -5,10 +5,6 @@ import java.time.LocalDateTime;
 
 @Entity
 public class Indisponibilite extends Creneau{
-    private @Id
-    @GeneratedValue
-    Long id;
-
     @ManyToOne
     @JoinColumn(name = "enseignent_id")
     private Personne enseignent;

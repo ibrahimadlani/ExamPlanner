@@ -1,19 +1,4 @@
-/*
-  This example requires Tailwind CSS v2.0+ 
-  
-  This example requires some changes to your config:
-  
-  ```
-  // tailwind.config.js
-  module.exports = {
-    // ...
-    plugins: [
-      // ...
-      require('@tailwindcss/forms'),
-    ],
-  }
-  ```
-*/
+
 
 import Background from "./Background";
 import Navbar from './Navbar';
@@ -48,6 +33,7 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
 
+
 export default function Example() {
   return (
     <>
@@ -55,7 +41,7 @@ export default function Example() {
       <Background />
       <div className="relative pt-6 pb-16 sm:pb-24">
         <Navbar navigation = { navigation }/>
-        <main className="mt-24 pb-8">
+        <main className="mt-14 pb-8">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:max-w-7xl lg:px-8">
             <h1 className="sr-only">Page title</h1>
             {/* Main 3 column grid */}
