@@ -149,9 +149,13 @@ public class DatabaseLoader implements CommandLineRunner {
 		//Planning (Lundi 21 Novembre 2022 - Vendredi 25 Novembre 2022)
 		Planning planing_novembre_3 = new Planning(LocalDateTime.of(2022,11,21, 0,0),LocalDateTime.of(2022,11,25,0,0), list_indisponibilites, 8,0, 17,0,toutes_matieres);
 
+		this.planningRepository.save(planing_novembre_3);
+
 		planing_novembre_3.setExamens(list_examens);
 
 		this.planningRepository.save(planing_novembre_3);
+
+		System.out.println(planing_novembre_3.getFermetures().size());
 
 	}
 }

@@ -18,11 +18,11 @@ public class Fermeture extends Creneau{
 
 
         if(matin){
-            this.setDebut(LocalDateTime.of(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getMinute(), 0,0));
+            this.setDebut(LocalDateTime.of(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getDayOfMonth(), 0,0));
             this.setDuree_min(heure*60+minute);
         }
         else {
-            this.setDebut(LocalDateTime.of(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getMinute(), this.heure,this.minute));
+            this.setDebut(LocalDateTime.of(this.getDebut().getYear(),this.getDebut().getMonth(),this.getDebut().getDayOfMonth(), this.heure,this.minute));
             this.setDuree_min(1440 - heure * 60 + minute); }
             this.setFin(this.addMinutesToDate(this.getDuree_min(), this.getDebut()));
     }

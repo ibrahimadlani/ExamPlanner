@@ -1,12 +1,11 @@
 package com.greglturnquist.payroll.Model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -23,7 +22,7 @@ public class Planning {
     private List<Indisponibilite> indisponibilites;
     @ManyToMany
     private List<Examen> examens;
-    @ManyToMany
+    @ManyToMany(cascade= CascadeType.ALL)
     private List<Fermeture> fermetures;
     @ManyToMany
     private List<Matiere> matieres;
@@ -51,7 +50,7 @@ public class Planning {
         this.soir_minute = soir_minute;
         this.matieres = matieres;
 
-        //this.addFermetures();
+        this.addFermetures();
     }
 
     public LocalDateTime getDebut() {
@@ -88,18 +87,25 @@ public class Planning {
 
 
     public int countDays(){
-        return (int) (Math.abs(this.fin.getHour() - this.debut.getHour()) / (1000 * 60 * 60 * 24))+1;
+        return (int) ChronoUnit.DAYS.between(debut, fin);
     }
 
 
     public void addFermetures(){
+        LocalDateTime dateEnCours = this.debut;
         for (int i = 0 ; i < this.countDays(); i++){
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(Date.from(this.debut.toInstant((ZoneOffset) ZoneId.systemDefault())));
-            cal.add(Calendar.DATE, i);
-            Date dateWith5Days = cal.getTime();
-            this.addFermeture(new Fermeture(dateWith5Days.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),true,this.matin_heure, this.matin_minute));
-            this.addFermeture(new Fermeture(dateWith5Days.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(),false,this.soir_heure, this.soir_minute));
+            System.out.println(dateEnCours.getDayOfMonth());
+
+            System.out.println(dateEnCours.getDayOfWeek().name() + "   " +  dateEnCours.getDayOfWeek().getValue());
+
+            if(dateEnCours.getDayOfWeek().getValue() == 6 || dateEnCours.getDayOfWeek().getValue() == 7){
+                this.addFermeture(new Fermeture(LocalDateTime.of(dateEnCours.getYear(), dateEnCours.getMonth(), dateEnCours.getDayOfMonth(), 0, 0), false, 0, 0));
+            }else{
+                this.addFermeture(new Fermeture(LocalDateTime.of(dateEnCours.getYear(), dateEnCours.getMonth(), dateEnCours.getDayOfMonth(), matin_heure, matin_minute), true, matin_heure, matin_minute));
+                this.addFermeture(new Fermeture(LocalDateTime.of(dateEnCours.getYear(), dateEnCours.getMonth(), dateEnCours.getDayOfMonth(), soir_heure, soir_minute), false, soir_heure, soir_minute));
+            }
+
+            dateEnCours = dateEnCours.plusDays(1);
         }
     }
 
