@@ -92,8 +92,10 @@ public class Planning {
 
 
     public void addFermetures(){
+
         LocalDateTime dateEnCours = this.debut;
         for (int i = 0 ; i < this.countDays(); i++){
+            System.out.println("" + this.countDays());
             System.out.println(dateEnCours.getDayOfMonth());
 
             System.out.println(dateEnCours.getDayOfWeek().name() + "   " +  dateEnCours.getDayOfWeek().getValue());

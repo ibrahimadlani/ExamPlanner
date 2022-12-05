@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -35,6 +36,8 @@ public class DatabaseLoader implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
+
+
 		this.repository.save(new Employee("Frodo", "Baggins", "ring bearer"));
 		this.repository.save(new Employee("Yes", "BB", "ring bearer cunt"));
 
@@ -137,8 +140,10 @@ public class DatabaseLoader implements CommandLineRunner {
 		this.indisponibiliteRepository.save(indispo_ny_1);
 		this.indisponibiliteRepository.save(indispo_ny_2);
 
+
+
 		//Examens
-		Examen test_exam = new Examen(LocalDateTime.of(2022,10,23,23,0),60, pen_test);
+		Examen test_exam = new Examen(LocalDateTime.of(2022,10,23,22,0),60, pen_test);
 
 		this.examenRepository.save(test_exam);
 

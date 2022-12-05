@@ -1,16 +1,17 @@
 
-import Home from "./Home";
-import About from "./About";
-import NotFound from "./NotFound";
-import Dashboard from "./Generateur";
-import Connexion from "./Connexion";
+import Home from "./pages/Accueil/Home";
+import About from "./pages/Information/About";
+import NotFound from "./pages/Accueil/Home";
+import Dashboard from "./pages/Generateur/Generateur";
+import Connexion from "./pages/Connexion/Connexion";
+import Menu from "./pages/Menu/Menu";
 import {Routes, Route} from "react-router-dom";
 function App() {
     return(
         <Routes>
             <Route path="/" element={ <Home /> } />
             <Route path="/information" element={ <About /> } />
-            <Route path="/generateur" element={ <Dashboard /> } />
+            <Route path="/generateur" element={ <Menu /> } />
             <Route path="/connexion" element={ <Connexion /> } />
             <Route path="*" element={ <NotFound /> } />
         </Routes>
