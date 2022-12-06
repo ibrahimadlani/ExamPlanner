@@ -137,7 +137,7 @@ public class DatabaseLoader implements CommandLineRunner {
 		this.indisponibiliteRepository.save(indispo_ny_2);
 
 		//Examens
-		Examen test_exam = new Examen(LocalDateTime.of(2022,10,23,16,0),60, pen_test);
+		Examen test_exam = new Examen(LocalDateTime.of(2022,12,6,16,0),60, pen_test);
 
 		this.examenRepository.save(test_exam);
 
