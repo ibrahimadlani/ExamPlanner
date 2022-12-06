@@ -20,7 +20,7 @@ export default function Example() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const result = await axios("http://localhost:8001/api/creneaus");
+      const result = await axios("http://localhost:8001/api/creneaus?size=10000");
       setIndisponibilites(result.data._embedded.indisponibilites)
       setExamens(result.data._embedded.examens)
       setfermetures(result.data._embedded.fermetures)
@@ -35,7 +35,6 @@ export default function Example() {
   },[])
 
 function dateToPxHeight(date){
-  console.log([date.getDay(), date.getHours()*12+date.getMinutes()/60*12+date.getSeconds()/3600*12+2])
   return [date.getDay(), date.getHours()*12+date.getMinutes()/60*12+date.getSeconds()/3600*12+2]
   
 }
@@ -373,7 +372,7 @@ function dateToPxHeight(date){
                     
                     const currentDate = new Date(res.debut);
                     const coords = dateToPxHeight(currentDate);
-                    console.log("[INDISPONIBLE] : " + String(currentDate.getDate())+ " " + res.debut)
+                    console.log("[INDISPONIBLE] : relative mt-px flex sm:col-start-"+ String(coords[0]))
                     return(
                       <li className={"relative mt-px flex sm:col-start-"+ String(coords[0])} style={{ gridRow: String(coords[1]) + ' / span ' + String(res.duree_min/60*12) }}>
                         <a href="#" className="group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-slate-50 p-2 text-xs leading-5 hover:bg-slate-100">
@@ -394,9 +393,9 @@ function dateToPxHeight(date){
                     
                     const currentDate = new Date(res.debut);
                     const coords = dateToPxHeight(currentDate);
-                    console.log("[EXAMEN] : " + String(currentDate.getDate())+ " " + res.debut)
+                    console.log("[EXAMEN] : relative mt-px flex sm:col-start-"+ res.indexSemaine)
                     return(
-                      <li className={"relative mt-px flex sm:col-start-1"} style={{ gridRow: String(coords[1]) + ' / span ' + String(res.duree_min/60*12) }}>
+                      <li className={"relative mt-px flex sm:col-start-" + String(coords[0])} style={{ gridRow: String(coords[1]) + ' / span ' + String(res.duree_min/60*12) }}>
                         <a href="#" className="group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-red-50 p-2 text-xs leading-5 hover:bg-red-100">
                           <p className="order-1 font-semibold text-red-700">Examen</p>
                           <p className="text-red-500 green-hover:text-blue-700">
@@ -415,9 +414,9 @@ function dateToPxHeight(date){
                     
                     const currentDate = new Date(res.debut);
                     const coords = dateToPxHeight(currentDate);
-                    console.log("[FERMETURE] : " + String(currentDate.getDate())+ " " + res.debut)
+                    console.log("[FERMETURE] : relative mt-px flex sm:col-start-"+ String(coords[0]))
                     return(
-                      <li className={"relative mt-px flex sm:col-start-"+ String(coords[0])} style={{ gridRow: String(coords[1]) + ' / span ' + String(res.duree_min/60*12) }}>
+                      <li className={"relative mt-px flex sm:col-start-"+ res.indexSemaine} style={{ gridRow: String(coords[1]) + ' / span ' + String(res.duree_min/60*12) }}>
                         <a href="#" className="group absolute inset-1 flex flex-col overflow-y-auto rounded-lg bg-neutral-50 p-2 text-xs leading-5 hover:bg-neutral-100 bg-[url('https://img.freepik.com/premium-vector/diagonal-lines-texture-gray-design-seamless-striped-vector-geometric-background_547648-2469.jpg?w=2000')]">
                           <p className="order-1 font-semibold text-neutral-700">Fermetrure</p>
                           <p className="text-neutral-500 neutral-hover:text-blue-700">
