@@ -1,11 +1,12 @@
 import Background from "../../components/Background";
 
-export default function Example() {
+export default function Connexion() {
     return (
       <>
         <div className="relative bg-gray-50 overflow-hidden h-full">
-            <Background />
+            
             <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+            <Background />
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <a href="/">
                     <img
@@ -148,7 +149,7 @@ export default function Example() {
             </div>
         
             </div>
-             </div>
+        </div>
       </>
     )
   }

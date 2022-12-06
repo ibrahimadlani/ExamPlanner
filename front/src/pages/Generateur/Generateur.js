@@ -1,7 +1,7 @@
 
 
 import Background from "../../components/Background";
-import Navbar from '../../components/Navbar';
+import Navbar from '../../components/Navbar/Navbar';
 import Footer from "../../components/Footer";
 import Calendar from "./components/Calendar";
 import Filter from "./components/Filter";
@@ -22,18 +22,15 @@ const userNavigation = [
   { name: 'Settings', href: '#' },
   { name: 'Sign out', href: '#' },
 ]
-
 const stats = [
   { label: 'Etudiant', value: "Status" },
   { label: 'Sick days left', value: 4 },
 ]
-
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ')
 }
-
-
 export default function Example() {
+
   return (
     <>
       <div className="relative bg-gray-50 overflow-hidden">

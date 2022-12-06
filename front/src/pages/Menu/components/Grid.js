@@ -67,9 +67,9 @@ export default function Grid() {
         >
           <button
             type="button"
-            className="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-0 text-center hover:border-gray-400 focus:outline-none"
+            className="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-4 text-center hover:border-gray-400 focus:outline-none"
           >
-            <img className="h-12 w-12 mx-auto" src={process.env.PUBLIC_URL + './images/calendar.svg'} />
+            <img className="h-10 w-10 mx-auto" src={process.env.PUBLIC_URL + './images/calendar.svg'} />
             <span className="mt-2 block text-sm font-medium text-red-900">
               Crée un nouveau planning
             </span>
@@ -98,7 +98,7 @@ export default function Grid() {
                 <div className="-mt-px flex divide-x divide-gray-200">
                   <div className="w-0 flex-1 flex">
                     <a
-                      href={`/planning`}
+                      href={`/planning/`+  Object.values(person)}
                       className="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500"
                     >
                       <PencilIcon
