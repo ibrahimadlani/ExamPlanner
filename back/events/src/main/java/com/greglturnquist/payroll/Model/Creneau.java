@@ -12,6 +12,7 @@ public class Creneau {
     Long id;
     private LocalDateTime debut;
     private LocalDateTime fin;
+    private int indexSemaine;
     private int duree_min;
 
     public Creneau(LocalDateTime debut, int duree_min){
@@ -40,6 +41,14 @@ public class Creneau {
 
     public void setFin(LocalDateTime fin) {
         this.fin = fin;
+    }
+
+    public int getIndexSemaine() {
+        return indexSemaine;
+    }
+
+    public void setIndexSemaine(int indexSemaine) {
+        this.indexSemaine = indexSemaine;
     }
 
     public LocalDateTime getFin() {

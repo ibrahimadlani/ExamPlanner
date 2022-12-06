@@ -12,6 +12,7 @@ public class Fermeture extends Creneau{
 
     public Fermeture(LocalDateTime debut, boolean matin, int heure, int minute){
         super(debut,0);
+        this.setIndexSemaine(debut.getDayOfWeek().getValue());
         this.matin = matin;
         this.heure = heure;
         this.minute = minute;
