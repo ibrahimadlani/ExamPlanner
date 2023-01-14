@@ -1,26 +1,24 @@
 package com.greglturnquist.payroll.Model;
 
+import com.mysql.cj.xdevapi.Schema;
+
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class Planning {
     private @Id @GeneratedValue
     Long id;
-
     private LocalDateTime debut;
     private LocalDateTime fin;
     @ManyToMany
     private List<Indisponibilite> indisponibilites;
-    @ManyToMany
+    @OneToMany(cascade=CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Examen> examens;
     @ManyToMany(cascade= CascadeType.ALL)
     private List<Fermeture> fermetures;
@@ -49,7 +47,6 @@ public class Planning {
         this.soir_heure = soir_heure;
         this.soir_minute = soir_minute;
         this.matieres = matieres;
-
         this.addFermetures();
     }
 
@@ -85,7 +82,6 @@ public class Planning {
         this.indisponibilites = indisponibilites;
     }
 
-
     public int countDays(){
         return (int) ChronoUnit.DAYS.between(debut, fin);
     }
@@ -111,6 +107,10 @@ public class Planning {
         }
     }
 
+    public void genererListeExams(){
+        System.out.println(this.matieres);
+        System.out.println(this.matieres.size());
+    }
 
     public boolean isExamenPossible(Examen examen){
         for (Indisponibilite indisponibilite : this.indisponibilites) { if (examen.isOverlap(indisponibilite)){ return false; } }
@@ -130,9 +130,95 @@ public class Planning {
 
 
     public void generate(){
-        for (Matiere matiere: this.matieres) {
-            LocalDateTime tentative = this.debut;
+        List<Creneau> allEvents = new ArrayList<>();
+        allEvents = allEventsSorted();
+        List<Creneau> disponibilites = new ArrayList<>();
+
+        for (int i = 0; i < allEvents.size() - 1; i++) {
+            if(allEvents.get(i).getFin() != allEvents.get(i + 1).getDebut()) {
+                Creneau c = new Creneau(allEvents.get(i).getFin(), allEvents.get(i + 1).getDebut());
+
+                if (c.getDuree_min() != 0) {
+                    if (c.getDuree_min() > 120) {
+                        Creneau c1 = new Creneau(c.getDebut(), 120);
+                        Creneau c2 = new Creneau(c1.getFin(), c.getDuree_min() - 120);
+                        disponibilites.add(c1);
+                        disponibilites.add(c2);
+                    } else {
+                        disponibilites.add(c);
+                    }
+                }
+            }
         }
+
+        for (Creneau c: disponibilites
+        ) {
+            System.out.println(c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min());
+        }
+
+        for (int i = 0; i < matieres.size(); i++) {
+            Creneau c = disponibiliteParfaitePourUnExamen(matieres.get(i).getDuree_examen(), disponibilites);
+            if(c != null) {
+                System.out.println("Examen trouvé ! " + c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min());
+                Examen examen = new Examen(c.getDebut(), c.getDuree_min(), matieres.get(i));
+                try {
+                    examens.add(examen);
+                }catch (Exception e){
+                    System.out.println(e);
+                }
+
+            }else{
+                c = disponibiliteImparfaitePourUnExamen(matieres.get(i).getDuree_examen(), disponibilites);
+                System.out.println("Examen trouvé ? " + c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min() + "    " + matieres.get(i).getDuree_examen());
+                Examen examen = new Examen(c.getDebut(), c.getDuree_min(), matieres.get(i));
+            }
+        }
+
+        disponibilites.clear();
+    }
+
+    public Creneau disponibiliteParfaitePourUnExamen(int duree, List<Creneau> disponibilites){
+        for (int i = 0; i < disponibilites.size(); i++) {
+            Creneau c = disponibilites.get(i);
+            if (duree == c.getDuree_min()) {
+                Creneau c_bis = disponibilites.remove(i);
+                return c_bis;
+            }
+        }
+        return null;
+    }
+
+    public Creneau disponibiliteImparfaitePourUnExamen(int duree, List<Creneau> disponibilites){
+        List<List> possibilites = new ArrayList<>();
+        List<Object> tupleIdeal = null;
+
+
+        for (int i = 0; i < disponibilites.size(); i++) {
+            List<Object> tuple = new ArrayList<>();
+            Creneau c = disponibilites.get(i);
+            if (duree < c.getDuree_min()) {
+                tuple.add(c);
+                tuple.add(c.getDuree_min() - duree);
+                possibilites.add(tuple);
+            }
+        }
+
+        if(possibilites.size()>0) {
+            tupleIdeal = possibilites.get(0);
+            for(int i = 1; i < possibilites.size(); i++){
+                if((int) possibilites.get(i).get(1) < (int) tupleIdeal.get(1)) {
+                    tupleIdeal = possibilites.get(i);
+                }
+            }
+        }
+
+        Creneau creneauSelectionne = (Creneau) tupleIdeal.get(0);
+        Creneau creneauExamen = new Creneau(creneauSelectionne.getDebut(), duree);
+        Creneau creneauRestant = new Creneau(creneauExamen.getFin(), creneauSelectionne.getDuree_min() - creneauExamen.getDuree_min());
+        disponibilites.remove(creneauSelectionne);
+        disponibilites.add(creneauRestant);
+
+        return creneauExamen;
     }
 
     public List<Creneau> allEventsSorted(){
@@ -145,9 +231,12 @@ public class Planning {
         for (int i = 0; i < allEventsSorted.size(); i++) {
             for (int j = i; j < allEventsSorted.size(); j++) {
                 if(allEventsSorted.get(i).getDebut().isAfter(allEventsSorted.get(j).getDebut())){
+                    Collections.swap(allEventsSorted, i, j);
+                    /*
                     LocalDateTime tmp = allEventsSorted.get(i).getDebut();
                     allEventsSorted.get(i).setDebut(allEventsSorted.get(j).getDebut());
                     allEventsSorted.get(j).setDebut(tmp);
+                     */
                 }
             }
         }

@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 public class Creneau {
@@ -19,6 +20,12 @@ public class Creneau {
         this.debut = debut;
         this.duree_min = duree_min;
         this.fin = addMinutesToDate(duree_min, this.debut);
+    }
+
+    public Creneau(LocalDateTime debut, LocalDateTime fin){
+        this.debut = debut;
+        this.fin = fin;
+        duree_min = (int) ChronoUnit.MINUTES.between(debut, fin);
     }
 
     public Creneau() {}
