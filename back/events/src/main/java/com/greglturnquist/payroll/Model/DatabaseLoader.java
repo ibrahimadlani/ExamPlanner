@@ -20,9 +20,10 @@ public class DatabaseLoader implements CommandLineRunner {
 	private final IndisponibiliteRepository indisponibiliteRepository;
 	private final ExamenRepository examenRepository;
 	private final PlanningRepository planningRepository;
+	private final ActionRepository actionRepository;
 
 	@Autowired
-	public DatabaseLoader(EmployeeRepository repository, PersonneRepository personneRepository, MatiereRepository matiereRepository, SpecialiteRepository specialiteRepository, IndisponibiliteRepository indisponibiliteRepository, ExamenRepository examenRepository, PlanningRepository planningRepository) {
+	public DatabaseLoader(EmployeeRepository repository, PersonneRepository personneRepository, MatiereRepository matiereRepository, SpecialiteRepository specialiteRepository, IndisponibiliteRepository indisponibiliteRepository, ExamenRepository examenRepository, PlanningRepository planningRepository, ActionRepository actionRepository) {
 		this.repository = repository;
 		this.PersonneRepository = personneRepository;
 		this.matiereRepository = matiereRepository;
@@ -30,13 +31,11 @@ public class DatabaseLoader implements CommandLineRunner {
 		this.indisponibiliteRepository = indisponibiliteRepository;
 		this.examenRepository = examenRepository;
 		this.planningRepository = planningRepository;
+		this.actionRepository = actionRepository;
 	}
 
 	@Override
 	public void run(String... strings) throws Exception {
-		this.repository.save(new Employee("Frodo", "Baggins", "ring bearer"));
-		this.repository.save(new Employee("Yes", "BB", "ring bearer cunt"));
-
 		// Personnes
 
 		Personne ibrahim_adlani = new Personne("Ibrahim","ADLANI", LocalDate.of(2001,3,8), true, true);
@@ -149,9 +148,16 @@ public class DatabaseLoader implements CommandLineRunner {
 		//Planning (Lundi 21 Novembre 2022 - Vendredi 25 Novembre 2022)
 		Planning planing_novembre_3 = new Planning(LocalDateTime.of(2022,12,05, 0,0),LocalDateTime.of(2022,12,12,0,0), list_indisponibilites, 8,0, 17,0,toutes_matieres);
 
-		planing_novembre_3.generate();
+		//planing_novembre_3.generate();
 
 		this.planningRepository.save(planing_novembre_3);
+
+		//Action action = new Action("Action de merde");
+		//actionRepository.save(action);
+
+		//planing_novembre_3.exportExcel();
+
+
 
 	}
 }

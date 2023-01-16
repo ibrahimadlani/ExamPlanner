@@ -54,4 +54,7 @@ public class Matiere {
         this.responsable = responsable;
     }
 
+    public void setDuree_examen(int duree_examen) {
+        this.duree_examen = duree_examen;
+    }
 }

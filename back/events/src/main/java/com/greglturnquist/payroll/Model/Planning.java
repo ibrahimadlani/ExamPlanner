@@ -2,13 +2,17 @@ package com.greglturnquist.payroll.Model;
 
 import com.mysql.cj.xdevapi.Schema;
 
+
 import javax.persistence.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 public class Planning {
@@ -134,47 +138,64 @@ public class Planning {
         allEvents = allEventsSorted();
         List<Creneau> disponibilites = new ArrayList<>();
 
-        for (int i = 0; i < allEvents.size() - 1; i++) {
-            if(allEvents.get(i).getFin() != allEvents.get(i + 1).getDebut()) {
-                Creneau c = new Creneau(allEvents.get(i).getFin(), allEvents.get(i + 1).getDebut());
+        try {
 
-                if (c.getDuree_min() != 0) {
-                    if (c.getDuree_min() > 120) {
-                        Creneau c1 = new Creneau(c.getDebut(), 120);
-                        Creneau c2 = new Creneau(c1.getFin(), c.getDuree_min() - 120);
-                        disponibilites.add(c1);
-                        disponibilites.add(c2);
-                    } else {
-                        disponibilites.add(c);
+            // Creation des dispos
+            for (int i = 0; i < allEvents.size() - 1; i++) {
+                if (allEvents.get(i).getFin() != allEvents.get(i + 1).getDebut()) {
+                    Creneau c = new Creneau(allEvents.get(i).getFin(), allEvents.get(i + 1).getDebut());
+
+                    if (c.getDuree_min() != 0) {
+                        if (c.getDuree_min() > 120) {
+                            Creneau c1 = new Creneau(c.getDebut(), 120);
+                            Creneau c2 = new Creneau(c1.getFin(), c.getDuree_min() - 120);
+                            disponibilites.add(c1);
+                            disponibilites.add(c2);
+                        } else {
+                            disponibilites.add(c);
+                        }
                     }
                 }
             }
-        }
 
-        for (Creneau c: disponibilites
-        ) {
-            System.out.println(c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min());
-        }
-
-        for (int i = 0; i < matieres.size(); i++) {
-            Creneau c = disponibiliteParfaitePourUnExamen(matieres.get(i).getDuree_examen(), disponibilites);
-            if(c != null) {
-                System.out.println("Examen trouvé ! " + c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min());
-                Examen examen = new Examen(c.getDebut(), c.getDuree_min(), matieres.get(i));
-                try {
-                    examens.add(examen);
-                }catch (Exception e){
-                    System.out.println(e);
-                }
-
-            }else{
-                c = disponibiliteImparfaitePourUnExamen(matieres.get(i).getDuree_examen(), disponibilites);
-                System.out.println("Examen trouvé ? " + c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min() + "    " + matieres.get(i).getDuree_examen());
-                Examen examen = new Examen(c.getDebut(), c.getDuree_min(), matieres.get(i));
+            for (Creneau c : disponibilites
+            ) {
+                System.out.println(c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min());
             }
-        }
 
-        disponibilites.clear();
+            //Parcours des matieres pour assigner des créneau d'examens
+            for (int i = 0; i < matieres.size(); i++) {
+                Creneau c = disponibiliteParfaitePourUnExamen(matieres.get(i).getDuree_examen(), disponibilites);
+                if (c != null) {
+                    System.out.println("Examen trouvé ! " + matieres.get(i).getNom() + "    " + c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min());
+                    Examen examen = new Examen(c.getDebut(), c.getDuree_min(), matieres.get(i));
+                    try {
+                        examens.add(examen);
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+
+                } else {
+                    c = disponibiliteImparfaitePourUnExamen(matieres.get(i).getDuree_examen(), disponibilites);
+                    if(c!=null){
+                        System.out.println("Examen trouvé ? " + matieres.get(i).getNom() + "    " + c.getDebut() + "    " + c.getFin() + "    " + c.getDuree_min() + "    " + matieres.get(i).getDuree_examen());
+                        Examen examen = new Examen(c.getDebut(), c.getDuree_min(), matieres.get(i));
+                        try {
+                            examens.add(examen);
+                        } catch (Exception e) {
+                            System.out.println(e);
+                        }
+                    }else{
+                        System.out.println("Aucun créneau n'a été trouvé pour l'examen : " + matieres.get(i).getNom());
+                    }
+                }
+            }
+
+            disponibilites.clear();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public Creneau disponibiliteParfaitePourUnExamen(int duree, List<Creneau> disponibilites){
@@ -212,6 +233,10 @@ public class Planning {
             }
         }
 
+        if(tupleIdeal == null){
+            return null;
+        }
+
         Creneau creneauSelectionne = (Creneau) tupleIdeal.get(0);
         Creneau creneauExamen = new Creneau(creneauSelectionne.getDebut(), duree);
         Creneau creneauRestant = new Creneau(creneauExamen.getFin(), creneauSelectionne.getDuree_min() - creneauExamen.getDuree_min());
@@ -242,6 +267,66 @@ public class Planning {
         }
 
         return allEventsSorted;
+    }
+
+    public Creneau eventAtATime(LocalDateTime time){
+        for (Creneau c: allEventsSorted()
+             ) {
+            if(time.isEqual(c.getDebut())){
+                return c;
+            }
+            if (time.isAfter(c.getDebut()) && time.isBefore(c.getFin())){
+                return c;
+            }
+        }
+        return null;
+    }
+
+    public void exportExcel(){
+        try {
+            FileWriter myWriter = new FileWriter("/Users/alcidefaucheron/Documents/Projets/ExamPlanner/back/events/src/main/resources/Data/export.csv");
+
+            long nbColonnes = ChronoUnit.DAYS.between(debut, fin);
+
+            myWriter.write("h:m;");
+
+        for (int i = 0; i < nbColonnes; i++) {
+                myWriter.write(debut.plusDays(i).toString() + ";");
+            }
+
+            myWriter.write("\n");
+            LocalDateTime time;
+            Creneau c;
+
+            for (int i = 0; i < 48; i++) {
+                String ligne = new Integer(debut.plusMinutes(i*30).getHour()).toString() + ":" + new Integer(debut.plusMinutes(i*30).getMinute()).toString() + ";";
+
+                for (int j = 0; j < nbColonnes; j++) {
+                    time = debut.plusDays(j).plusMinutes(i*30);
+                    c = eventAtATime(time);
+                    if(c != null){
+                        if(c instanceof Examen){
+                            Examen exam = (Examen) c;
+                            ligne += "Examen (" + exam.getMatiere().getNom() + ");";
+                        }else {
+                            ligne += c.getClass().getSimpleName() + ";";
+                        }
+                        //ligne += time + ";";
+                    }else{
+                        ligne += "Vide;";
+                    }
+
+                }
+                myWriter.write(ligne+"\n");
+            }
+
+            myWriter.close();
+
+            System.out.println("Export reussi");
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
     public void addFermeture(Fermeture fermeture){
@@ -286,6 +371,14 @@ public class Planning {
 
     public void setSoir_minute(int soir_minute) {
         this.soir_minute = soir_minute;
+    }
+
+    public List<Matiere> getMatieres() {
+        return matieres;
+    }
+
+    public void setMatieres(List<Matiere> matieres) {
+        this.matieres = matieres;
     }
 
     @Override
