@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -20,10 +21,9 @@ public class DatabaseLoader implements CommandLineRunner {
 	private final IndisponibiliteRepository indisponibiliteRepository;
 	private final ExamenRepository examenRepository;
 	private final PlanningRepository planningRepository;
-	private final ActionRepository actionRepository;
 
 	@Autowired
-	public DatabaseLoader(EmployeeRepository repository, PersonneRepository personneRepository, MatiereRepository matiereRepository, SpecialiteRepository specialiteRepository, IndisponibiliteRepository indisponibiliteRepository, ExamenRepository examenRepository, PlanningRepository planningRepository, ActionRepository actionRepository) {
+	public DatabaseLoader(EmployeeRepository repository, PersonneRepository personneRepository, MatiereRepository matiereRepository, SpecialiteRepository specialiteRepository, IndisponibiliteRepository indisponibiliteRepository, ExamenRepository examenRepository, PlanningRepository planningRepository) {
 		this.repository = repository;
 		this.PersonneRepository = personneRepository;
 		this.matiereRepository = matiereRepository;
@@ -31,7 +31,6 @@ public class DatabaseLoader implements CommandLineRunner {
 		this.indisponibiliteRepository = indisponibiliteRepository;
 		this.examenRepository = examenRepository;
 		this.planningRepository = planningRepository;
-		this.actionRepository = actionRepository;
 	}
 
 	@Override
@@ -114,36 +113,35 @@ public class DatabaseLoader implements CommandLineRunner {
 		//Indisponibilités
 
 		Indisponibilite indispo_ia_1 = new Indisponibilite(1,LocalDateTime.of(2022,12,5,9,0), 60, ibrahim_adlani );
-		Indisponibilite indispo_ia_2 = new Indisponibilite(2,LocalDateTime.of(2022,12,7,11,0), 90, ibrahim_adlani);
+		Indisponibilite indispo_mdy_2 = new Indisponibilite(6,LocalDateTime.of(2022,12,5,13,0), 90, mathias_dupey);
+		//Indisponibilite indispo_mdl_1 = new Indisponibilite(7,LocalDateTime.of(2022,12,6,10,0), 90, maxence_duconseil);
 		Indisponibilite indispo_af_1 = new Indisponibilite(3,LocalDateTime.of(2022,12,6,14,0), 60, alcide_faucheron);
+		Indisponibilite indispo_ia_2 = new Indisponibilite(2,LocalDateTime.of(2022,12,7,11,0), 90, ibrahim_adlani);
+		Indisponibilite indispo_ny_1 = new Indisponibilite(9,LocalDateTime.of(2022,12,7,15,0), 60, nadir_yala);
 		Indisponibilite indispo_af_2 = new Indisponibilite(4,LocalDateTime.of(2022,12,8,13,0), 90, alcide_faucheron);
 		Indisponibilite indispo_mdy_1 = new Indisponibilite(5,LocalDateTime.of(2022,12,9,9,0), 60, mathias_dupey);
-		Indisponibilite indispo_mdy_2 = new Indisponibilite(6,LocalDateTime.of(2022,12,5,13,0), 90, mathias_dupey);
-		Indisponibilite indispo_mdl_1 = new Indisponibilite(7,LocalDateTime.of(2022,12,6,10,0), 90, maxence_duconseil);
-		Indisponibilite indispo_mdl_2 = new Indisponibilite(8,LocalDateTime.of(2022,12,9,16,0), 60, maxence_duconseil);
-		Indisponibilite indispo_ny_1 = new Indisponibilite(9,LocalDateTime.of(2022,12,7,15,0), 60, nadir_yala);
 		Indisponibilite indispo_ny_2 = new Indisponibilite(10,LocalDateTime.of(2022,12,9,13,0), 90, nadir_yala);
+		Indisponibilite indispo_mdl_2 = new Indisponibilite(8,LocalDateTime.of(2022,12,9,16,0), 60, maxence_duconseil);
 
 		this.indisponibiliteRepository.save(indispo_ia_1);
-		this.indisponibiliteRepository.save(indispo_ia_2);
+		this.indisponibiliteRepository.save(indispo_mdy_2);
+		//this.indisponibiliteRepository.save(indispo_mdl_1);
 		this.indisponibiliteRepository.save(indispo_af_1);
+		this.indisponibiliteRepository.save(indispo_ia_2);
+		this.indisponibiliteRepository.save(indispo_ny_1);
 		this.indisponibiliteRepository.save(indispo_af_2);
 		this.indisponibiliteRepository.save(indispo_mdy_1);
-		this.indisponibiliteRepository.save(indispo_mdy_2);
-		this.indisponibiliteRepository.save(indispo_mdl_1);
-		this.indisponibiliteRepository.save(indispo_mdl_2);
-		this.indisponibiliteRepository.save(indispo_ny_1);
 		this.indisponibiliteRepository.save(indispo_ny_2);
+		this.indisponibiliteRepository.save(indispo_mdl_2);
 
-		//Examens
-		Examen test_exam = new Examen(LocalDateTime.of(2022,12,6,15,0),120, pen_test);
 
-		this.examenRepository.save(test_exam);
+
+
 
 		//Paramètres planning
-		List<Indisponibilite> list_indisponibilites = Arrays.asList(indispo_ia_1,indispo_ia_2,indispo_af_1,indispo_af_2,indispo_mdy_1,indispo_mdy_2,indispo_mdl_1,indispo_mdl_2,indispo_ny_1,indispo_ny_2);
+		List<Indisponibilite> list_indisponibilites = Arrays.asList(indispo_ia_1,indispo_ia_2,indispo_af_1,indispo_af_2,indispo_mdy_1,indispo_mdy_2/*,indispo_mdl_1*/,indispo_mdl_2,indispo_ny_1,indispo_ny_2);
 
-		List<Examen> list_examens = Arrays.asList(test_exam);
+		List<Examen> list_examens = Collections.<Examen>emptyList();
 
 		//Planning (Lundi 21 Novembre 2022 - Vendredi 25 Novembre 2022)
 		Planning planing_novembre_3 = new Planning(LocalDateTime.of(2022,12,05, 0,0),LocalDateTime.of(2022,12,12,0,0), list_indisponibilites, 8,0, 17,0,toutes_matieres);
@@ -155,7 +153,7 @@ public class DatabaseLoader implements CommandLineRunner {
 		//Action action = new Action("Action de merde");
 		//actionRepository.save(action);
 
-		planing_novembre_3.exportExcel();
+		//planing_novembre_3.exportExcel();
 
 
 

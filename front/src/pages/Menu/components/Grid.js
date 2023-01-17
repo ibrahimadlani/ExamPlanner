@@ -17,6 +17,7 @@ const people = [
     role: "Ing 1 GIA",
     email: "janecooper@example.com",
     telephone: "+1-202-555-0170",
+    href: "planning_s4_gia1",
     imageUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
   },
@@ -26,6 +27,7 @@ const people = [
     role: "Ing 2 GIA",
     email: "janecooper@example.com",
     telephone: "+1-202-555-0170",
+    href: "planning_s4_gia2",
     imageUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
   },
@@ -35,6 +37,7 @@ const people = [
     role: "Ing 1 GMA",
     email: "janecooper@example.com",
     telephone: "+1-202-555-0170",
+    href: "planning_s3_gma1",
     imageUrl:
       "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60",
   }
@@ -65,16 +68,17 @@ export default function Grid() {
           role="list"
           className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
-          <button
+          <a
             type="button"
             className="relative block w-full border-2 border-gray-300 border-dashed rounded-lg p-4 text-center hover:border-gray-400 focus:outline-none"
+            href={"/planning/nouveau_planning"}
           >
             <img className="h-10 w-10 mx-auto" src={process.env.PUBLIC_URL + './images/calendar.svg'} />
             <span className="mt-2 block text-sm font-medium text-red-900">
               Crée un nouveau planning
             </span>
-          </button>
-          {plannings.map((person) => (
+          </a>
+          {people.map((person) => (
             <li
               key={person.email}
               className="col-span-1 bg-white rounded-lg shadow divide-y divide-gray-200"
@@ -98,7 +102,7 @@ export default function Grid() {
                 <div className="-mt-px flex divide-x divide-gray-200">
                   <div className="w-0 flex-1 flex">
                     <a
-                      href={`/planning/`+  Object.values(person)}
+                      href={`/planning/`+ person.href}
                       className="relative -mr-px w-0 flex-1 inline-flex items-center justify-center py-4 text-sm text-gray-700 font-medium border border-transparent rounded-bl-lg hover:text-gray-500"
                     >
                       <PencilIcon

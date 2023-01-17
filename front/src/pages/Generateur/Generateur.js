@@ -17,11 +17,7 @@ const navigation = [
   { name: 'Générateur', href: '/generateur' },
   { name: 'Informations', href: '/information' },
 ]
-const userNavigation = [
-  { name: 'Your Profile', href: '#' },
-  { name: 'Settings', href: '#' },
-  { name: 'Sign out', href: '#' },
-]
+
 const stats = [
   { label: 'Etudiant', value: "Status" },
   { label: 'Sick days left', value: 4 },
@@ -80,14 +76,6 @@ export default function Example() {
                         </div>
                         
                       </div>
-                    </div>
-                    <div className="border-t border-gray-200 bg-gray-50 grid grid-cols-1 divide-y divide-gray-200 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-                      {stats.map((stat) => (
-                        <div key={stat.label} className="px-6 py-5 text-sm font-medium text-center">
-                          <span className="text-gray-900">{stat.value}</span>{' '}
-                          <span className="text-gray-600">{stat.label}</span>
-                        </div>
-                      ))}
                     </div>
                   </div>
                 </section>

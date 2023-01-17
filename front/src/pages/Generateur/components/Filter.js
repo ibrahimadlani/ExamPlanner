@@ -1,276 +1,742 @@
-import { Fragment, useState } from 'react'
-import { ChevronDownIcon,MinusIcon,PlusIcon  } from '@heroicons/react/solid'
-import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
-import { XIcon } from '@heroicons/react/solid'
-import {  FilterIcon, ViewGridIcon } from '@heroicons/react/outline'
+import { Dialog, Disclosure, Menu, Transition } from "@headlessui/react";
+import { XIcon, TrashIcon, PencilAltIcon } from "@heroicons/react/solid";
+import {
+  FilterIcon,
+  MinusIcon,
+  PlusIcon,
+  ViewGridIcon,
+} from "@heroicons/react/outline";
+import { Fragment, useRef, useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import {
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  DotsHorizontalIcon,
+  ShieldExclamationIcon,
+} from "@heroicons/react/solid";
 
-const sortOptions = [
-  { name: 'Most Popular', href: '#', current: true },
-  { name: 'Best Rating', href: '#', current: false },
-  { name: 'Newest', href: '#', current: false },
-  { name: 'Price: Low to High', href: '#', current: false },
-  { name: 'Price: High to Low', href: '#', current: false },
-]
+import axios from "axios";
 
-const filters = [
-  {
-    id: 'color',
-    name: 'Color',
-    options: [
-      { value: 'white', label: 'White', checked: false },
-      { value: 'beige', label: 'Beige', checked: false },
-      { value: 'blue', label: 'Blue', checked: true },
-      { value: 'brown', label: 'Brown', checked: false },
-      { value: 'green', label: 'Green', checked: false },
-      { value: 'purple', label: 'Purple', checked: false },
-    ],
-  },
-  {
-    id: 'category',
-    name: 'Category',
-    options: [
-      { value: 'new-arrivals', label: 'New Arrivals', checked: false },
-      { value: 'sale', label: 'Sale', checked: false },
-      { value: 'travel', label: 'Travel', checked: true },
-      { value: 'organization', label: 'Organization', checked: false },
-      { value: 'accessories', label: 'Accessories', checked: false },
-    ],
-  },
-  {
-    id: 'size',
-    name: 'Size',
-    options: [
-      { value: '2l', label: '2L', checked: false },
-      { value: '6l', label: '6L', checked: false },
-      { value: '12l', label: '12L', checked: false },
-      { value: '18l', label: '18L', checked: false },
-      { value: '20l', label: '20L', checked: false },
-      { value: '40l', label: '40L', checked: true },
-    ],
-  },
-]
+function addMinutes(time, minsToAdd) {
+  function D(J){ return (J<10? '0':'') + J;};
+  var piece = time.split(':');
+  var mins = piece[0]*60 + +piece[1] + +minsToAdd;
 
-function classNames(...classes) {
-  return classes.filter(Boolean).join(' ')
-}
+  return D(mins%(24*60)/60 | 0) + ':' + D(mins%60);  
+}  
 
-export default function Example() {
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
+
+
+
+export default function Filter() {
+  const [open, setOpen] = useState(false);
+  const [openTime, setOpenTime] = useState(false);
+  const cancelButtonRef = useRef(null);
+
+  const [indisponibilites, setIndisponibilites] = useState([]);
+  const [examens, setExamens] = useState([]);
+  const [fermetures, setfermetures] = useState([]);
+  const [personnes, setpersonnes] = useState([]);
+  const [matieres, setmatieres] = useState([]);
+  const [specialite, setspecialite] = useState([]);
+
+  const [modal, setModal] = useState({
+    type: null,
+    nom: "Default...",
+    description: "Description...",
+  });
+
+  const [nom, setNom] = useState("");
+  const [prenom, setPrenom] = useState("");
+  const [etudiantid, setEtudiantid] = useState("");
+  const [examid, setExamid] = useState("");
+  const [indispoid, setIndispoid] = useState("");
+  const [fermid, setFerm] = useState("");
+
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [duree, setduree] = useState("");
+
+  let modifyEtu = async (e) => {
+    e.preventDefault();
+    try {
+      let res = await fetch(
+        "http://localhost:8001/api/personnes/" + etudiantid,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            nom: prenom,
+            prenom: nom,
+            naissance: "2001-03-01",
+            enseignant: false,
+            sexe: true
+          })
+        }
+      );
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setNom("");
+        setPrenom("");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  let modifyExam = async (e) => {
+    e.preventDefault();
+    try {
+      let res = await fetch(
+        "http://localhost:8001/api/examens/" + examid,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            debut: date+"T"+time,
+            fin: date+"T"+addMinutes(time, '60'),
+            duree_min:60
+          })
+        }
+      );
+      console.log(date+"T"+addMinutes(time, '60'))
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setNom("");
+        setPrenom("");
+        console.log("yes");
+      } else {
+        console.log("no");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  let modifyIndispo = async (e) => {
+    e.preventDefault();
+    try {
+      let res = await fetch(
+        "http://localhost:8001/api/personnes/" + etudiantid,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name: nom,
+            prenom: prenom,
+            naissance: "2001-03-08",
+            sexe: true,
+            enseignant: true,
+          }),
+        }
+      );
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setNom("");
+        setPrenom("");
+        console.log("yes");
+      } else {
+        console.log("no");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+  let modifyFerm = async (e) => {
+    e.preventDefault();
+    try {
+      let res = await fetch(
+        "http://localhost:8001/api/personnes/" + etudiantid,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            name: nom,
+            prenom: prenom,
+            naissance: "2001-03-08",
+            sexe: true,
+            enseignant: true,
+          }),
+        }
+      );
+      let resJson = await res.json();
+      if (res.status === 200) {
+        setNom("");
+        setPrenom("");
+        console.log("yes");
+      } else {
+        console.log("no");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const personnes = await axios(
+        "http://localhost:8001/api/personnes?size=10000"
+      );
+      const crenaux = await axios(
+        "http://localhost:8001/api/creneaus?size=10000"
+      );
+      const matiere = await axios(
+        "http://localhost:8001/api/matieres?size=10000"
+      );
+      const specialite = await axios(
+        "http://localhost:8001/api/specialites?size=10000"
+      );
+
+      setIndisponibilites(crenaux.data._embedded.indisponibilites);
+      setExamens(crenaux.data._embedded.examens);
+      setfermetures(crenaux.data._embedded.fermetures);
+      setpersonnes(personnes.data._embedded.personnes);
+      setmatieres(matiere.data._embedded.matieres);
+      setspecialite(specialite.data._embedded.specialites);
+    };
+
+    fetchData();
+  }, []);
+  const filters = [
+    {
+      id: "indisponibilites",
+      name: "Indisponibilites",
+      options: indisponibilites,
+    },
+    {
+      id: "examens",
+      name: "Examens",
+      options: examens,
+    },
+    {
+      id: "etudiant",
+      name: "Etudiant",
+      options: personnes,
+    },
+    {
+      id: "fermetures",
+      name: "Fermetures",
+      options: fermetures,
+    },
+  ];
 
   return (
     <div className="bg-white">
       <div>
-        {/* Mobile filter dialog */}
-        <Transition.Root show={mobileFiltersOpen} as={Fragment}>
-          <Dialog as="div" className="relative z-40 lg:hidden" onClose={setMobileFiltersOpen}>
-            <Transition.Child
-              as={Fragment}
-              enter="transition-opacity ease-linear duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="transition-opacity ease-linear duration-300"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-25" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 z-40 flex">
-              <Transition.Child
-                as={Fragment}
-                enter="transition ease-in-out duration-300 transform"
-                enterFrom="translate-x-full"
-                enterTo="translate-x-0"
-                leave="transition ease-in-out duration-300 transform"
-                leaveFrom="translate-x-0"
-                leaveTo="translate-x-full"
-              >
-                <Dialog.Panel className="relative ml-auto flex h-full w-full max-w-xs flex-col overflow-y-auto bg-white py-4 pb-12 shadow-xl">
-                  <div className="flex items-center justify-between px-4">
-                    <h2 className="text-lg font-medium text-gray-900">Filters</h2>
-                    <button
-                      type="button"
-                      className="-mr-2 flex h-10 w-10 items-center justify-center rounded-md bg-white p-2 text-gray-400"
-                      onClick={() => setMobileFiltersOpen(false)}
-                    >
-                      <span className="sr-only">Close menu</span>
-                      <XIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                  </div>
-
-                  {/* Filters */}
-                  <form className="mt-4 border-t border-gray-200">
-                    <h3 className="sr-only">Categories</h3>
-                    
-
-                    {filters.map((section) => (
-                      <Disclosure as="div" key={section.id} className="border-t border-gray-200 px-4 py-6">
-                        {({ open }) => (
-                          <>
-                            <h3 className="-mx-2 -my-3 flow-root">
-                              <Disclosure.Button className="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
-                                <span className="font-medium text-gray-900">{section.name}</span>
-                                <span className="ml-6 flex items-center">
-                                  {open ? (
-                                    <MinusIcon className="h-5 w-5" aria-hidden="true" />
-                                  ) : (
-                                    <PlusIcon className="h-5 w-5" aria-hidden="true" />
-                                  )}
-                                </span>
-                              </Disclosure.Button>
-                            </h3>
-                            <Disclosure.Panel className="pt-6">
-                              <div className="space-y-6">
-                                {section.options.map((option, optionIdx) => (
-                                  <div key={option.value} className="flex items-center">
-                                    <input
-                                      id={`filter-mobile-${section.id}-${optionIdx}`}
-                                      name={`${section.id}[]`}
-                                      defaultValue={option.value}
-                                      type="checkbox"
-                                      defaultChecked={option.checked}
-                                      className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
-                                    />
-                                    <label
-                                      htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
-                                      className="ml-3 min-w-0 flex-1 text-gray-500"
-                                    >
-                                      {option.label}
-                                    </label>
-                                  </div>
-                                ))}
-                              </div>
-                            </Disclosure.Panel>
-                          </>
-                        )}
-                      </Disclosure>
-                    ))}
-                  </form>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </Dialog>
-        </Transition.Root>
-
         <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-baseline justify-between border-b border-gray-200 pt-6 pb-6">
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900">Filtres</h1>
-
-            <div className="flex items-center">
-              <Menu as="div" className="relative inline-block text-left">
-                <div>
-                  <Menu.Button className="group inline-flex justify-center text-sm font-medium text-gray-700 hover:text-gray-900">
-                    Sort
-                    <ChevronDownIcon
-                      className="-mr-1 ml-1 h-5 w-5 flex-shrink-0 text-gray-400 group-hover:text-gray-500"
-                      aria-hidden="true"
-                    />
-                  </Menu.Button>
-                </div>
-
-                <Transition
-                  as={Fragment}
-                  enter="transition ease-out duration-100"
-                  enterFrom="transform opacity-0 scale-95"
-                  enterTo="transform opacity-100 scale-100"
-                  leave="transition ease-in duration-75"
-                  leaveFrom="transform opacity-100 scale-100"
-                  leaveTo="transform opacity-0 scale-95"
-                >
-                  <Menu.Items className="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-2xl ring-1 ring-black ring-opacity-5 focus:outline-none">
-                    <div className="py-1">
-                      {sortOptions.map((option) => (
-                        <Menu.Item key={option.name}>
-                          {({ active }) => (
-                            <a
-                              href={option.href}
-                              className={classNames(
-                                option.current ? 'font-medium text-gray-900' : 'text-gray-500',
-                                active ? 'bg-gray-100' : '',
-                                'block px-4 py-2 text-sm'
-                              )}
-                            >
-                              {option.name}
-                            </a>
-                          )}
-                        </Menu.Item>
-                      ))}
-                    </div>
-                  </Menu.Items>
-                </Transition>
-              </Menu>
-
-              <button type="button" className="-m-2 ml-5 p-2 text-gray-400 hover:text-gray-500 sm:ml-7">
-                <span className="sr-only">View grid</span>
-                <ViewGridIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
-              <button
-                type="button"
-                className="-m-2 ml-4 p-2 text-gray-400 hover:text-gray-500 sm:ml-6 lg:hidden"
-                onClick={() => setMobileFiltersOpen(true)}
-              >
-                <span className="sr-only">Filters</span>
-                <FilterIcon className="h-5 w-5" aria-hidden="true" />
-              </button>
-            </div>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900">
+              Elements
+            </h1>
           </div>
 
           <section aria-labelledby="products-heading" className="pt-6 pb-24">
-            <h2 id="products-heading" className="sr-only">
-              Products
-            </h2>
-
             <div className="grid grid-cols-1 gap-x-8 gap-y-10">
               {/* Filters */}
               <form className="hidden lg:block">
                 <h3 className="sr-only">Categories</h3>
-                {filters.map((section) => (
-                  <Disclosure as="div" key={section.id} className="border-b border-gray-200 py-6">
-                    {({ open }) => (
-                      <>
-                        <h3 className="-my-3 flow-root">
-                          <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-                            <span className="font-medium text-gray-900">{section.name}</span>
-                            <span className="ml-6 flex items-center">
-                              {open ? (
-                                <MinusIcon className="h-5 w-5" aria-hidden="true" />
-                              ) : (
-                                <PlusIcon className="h-5 w-5" aria-hidden="true" />
-                              )}
-                            </span>
-                          </Disclosure.Button>
-                        </h3>
-                        <Disclosure.Panel className="pt-6">
-                          <div className="space-y-4">
-                            {section.options.map((option, optionIdx) => (
-                              <div key={option.value} className="flex items-center">
-                                <input
-                                  id={`filter-${section.id}-${optionIdx}`}
-                                  name={`${section.id}[]`}
-                                  defaultValue={option.value}
-                                  type="checkbox"
-                                  defaultChecked={option.checked}
-                                  className="h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
-                                />
-                                <label
-                                  htmlFor={`filter-${section.id}-${optionIdx}`}
-                                  className="ml-3 text-sm text-gray-600"
-                                >
-                                  {option.label}
-                                </label>
-                              </div>
-                            ))}
+                <Disclosure as="div" className="border-b border-gray-200 py-6">
+                  {({ open }) => (
+                    <>
+                      <h3 className="-my-3 flow-root">
+                        <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                          <span className="font-extrabold text-gray-900">
+                            Examens
+                          </span>
+                          <span className="ml-6 flex items-center">
+                            {open ? (
+                              <MinusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <PlusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            )}
+                          </span>
+                        </Disclosure.Button>
+                      </h3>
+                      <Disclosure.Panel className="pt-6">
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flow-root mt-6">
+                              <ul
+                                role="list"
+                                className="-my-5 divide-y divide-gray-200"
+                              >
+                                {filters[1].options.map((option) => (
+                                  <li key={option.debut} className="py-4">
+                                    <div className="flex items-center space-x-4">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                          {option.debut}
+                                        </p>
+                                        <p className="text-sm text-gray-500 truncate">
+                                          {option.fin}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <a
+                                          href="#"
+                                          className="inline-flex items-center shadow-sm px-2.5 py-0.5 border border-gray-300 text-sm leading-5 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                                          onClick={() => {
+                                            setOpenTime(true);
+                                            setDate(option.debut.split("T")[0]);
+                                            setTime(option.debut.split("T")[1]);
+                                            setExamid(
+                                              option._links.self.href
+                                                .split("/")
+                                                .pop()
+                                            );
+
+
+                                          }}
+                                        >
+                                          <PencilAltIcon
+                                            className="h-4 w-4"
+                                            aria-hidden="true"
+                                          />
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
                           </div>
-                        </Disclosure.Panel>
-                      </>
-                    )}
-                  </Disclosure>
-                ))}
+                        </div>
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+                <Disclosure as="div" className="border-b border-gray-200 py-6">
+                  {({ open }) => (
+                    <>
+                      <h3 className="-my-3 flow-root">
+                        <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                          <span className="font-extrabold text-gray-900">
+                            Indisponibilités
+                          </span>
+                          <span className="ml-6 flex items-center">
+                            {open ? (
+                              <MinusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <PlusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            )}
+                          </span>
+                        </Disclosure.Button>
+                      </h3>
+                      <Disclosure.Panel className="pt-6">
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flow-root mt-6">
+                              <ul
+                                role="list"
+                                className="-my-5 divide-y divide-gray-200"
+                              >
+                                {filters[0].options.map((option) => (
+                                  <li key={option.debut} className="py-4">
+                                    <div className="flex items-center space-x-4">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                          {option.debut}
+                                        </p>
+                                        <p className="text-sm text-gray-500 truncate">
+                                          {option.fin}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <a
+                                          href="#"
+                                          className="inline-flex items-center shadow-sm px-2.5 py-0.5 border border-gray-300 text-sm leading-5 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                                          onClick={() => {
+                                            setOpenTime(true);
+                                            setDate(option.debut.split("T")[0]);
+                                            setTime(option.debut.split("T")[1]);
+                                            setIndispoid(
+                                              option._links.self.href
+                                                .split("/")
+                                                .pop()
+                                            );
+                                          }}
+                                        >
+                                          <PencilAltIcon
+                                            className="h-4 w-4"
+                                            aria-hidden="true"
+                                          />
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+                <Disclosure as="div" className="border-b border-gray-200 py-6">
+                  {({ open }) => (
+                    <>
+                      <h3 className="-my-3 flow-root">
+                        <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                          <span className="font-extrabold text-gray-900">
+                            Étudiants
+                          </span>
+                          <span className="ml-6 flex items-center">
+                            {open ? (
+                              <MinusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <PlusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            )}
+                          </span>
+                        </Disclosure.Button>
+                      </h3>
+                      <Disclosure.Panel className="pt-6">
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flow-root mt-6">
+                              <ul
+                                role="list"
+                                className="-my-5 divide-y divide-gray-200"
+                              >
+                                {filters[2].options.map((option) => (
+                                  <li key={option.prenom} className="py-4">
+                                    <div className="flex items-center space-x-4">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                          {option.prenom + " " + option.nom}
+                                        </p>
+                                        <p className="text-sm text-gray-500 truncate">
+                                          {option.naissance}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <a
+                                          href="#"
+                                          className="inline-flex items-center shadow-sm px-2.5 py-0.5 border border-gray-300 text-sm leading-5 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                                          onClick={() => {
+                                            setOpen(true);
+                                            setEtudiantid(
+                                              option._links.self.href
+                                                .split("/")
+                                                .pop()
+                                            );
+                                            setNom(option.prenom);
+                                            setPrenom(option.nom);
+                                          }}
+                                        >
+                                          <PencilAltIcon
+                                            className="h-4 w-4"
+                                            aria-hidden="true"
+                                          />
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
+                <Disclosure as="div" className="border-b border-gray-200 py-6">
+                  {({ open }) => (
+                    <>
+                      <h3 className="-my-3 flow-root">
+                        <Disclosure.Button className="flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                          <span className="font-extrabold text-gray-900">
+                            Fermetures
+                          </span>
+                          <span className="ml-6 flex items-center">
+                            {open ? (
+                              <MinusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <PlusIcon
+                                className="h-5 w-5"
+                                aria-hidden="true"
+                              />
+                            )}
+                          </span>
+                        </Disclosure.Button>
+                      </h3>
+                      <Disclosure.Panel className="pt-6">
+                        <div className="space-y-4">
+                          <div>
+                            <div className="flow-root mt-6">
+                              <ul
+                                role="list"
+                                className="-my-5 divide-y divide-gray-200"
+                              >
+                                {filters[3].options.map((option) => (
+                                  <li key={option.debut} className="py-4">
+                                    <div className="flex items-center space-x-4">
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-gray-900 truncate">
+                                          {option.debut}
+                                        </p>
+                                        <p className="text-sm text-gray-500 truncate">
+                                          {option.fin}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <a
+                                          href="#"
+                                          className="inline-flex items-center shadow-sm px-2.5 py-0.5 border border-gray-300 text-sm leading-5 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                                          onClick={() => {
+                                            setOpenTime(true);
+                                            setDate(option.debut.split("T")[0]);
+                                            setTime(option.debut.split("T")[1]);
+                                            setTime(Number(option.duree));
+                                          }}
+                                        >
+                                          <PencilAltIcon
+                                            className="h-4 w-4"
+                                            aria-hidden="true"
+                                          />
+                                        </a>
+                                      </div>
+                                    </div>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      </Disclosure.Panel>
+                    </>
+                  )}
+                </Disclosure>
               </form>
             </div>
           </section>
         </main>
       </div>
+
+
+      
+      <Transition.Root show={open} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-40"
+          initialFocus={cancelButtonRef}
+          onClose={setOpen}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                enterTo="opacity-100 translate-y-0 sm:scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              >
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <PencilAltIcon
+                          className="h-6 w-6 text-red-600"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="mt-6 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <Dialog.Title
+                          as="h3"
+                          className="text-lg font-medium leading-6 text-gray-900"
+                        >
+                          Modification
+                        </Dialog.Title>
+                        <form onSubmit={modifyEtu}>
+                          <div className="overflow-hidden mt-10 sm:rounded-md">
+                            <div className="bg-white">
+                              <div className="grid grid-cols-6 gap-6">
+                                <div className="col-span-6 sm:col-span-3">
+                                  <label
+                                    htmlFor="first-name"
+                                    className="block text-sm font-medium text-gray-700"
+                                  >
+                                    Prénom
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={nom}
+                                    onChange={(e) => setNom(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                  />
+                                </div>
+
+                                <div className="col-span-6 sm:col-span-3">
+                                  <label
+                                    htmlFor="last-name"
+                                    className="block text-sm font-medium text-gray-700"
+                                  >
+                                    Nom de famille
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={prenom}
+                                    onChange={(e) => setPrenom(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className=" px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                              <button
+                                type="submit"
+                                className="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+                                onClick={() => setOpen(false)}
+                              >
+                                Modifier
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition.Root>
+      <Transition.Root show={openTime} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-40"
+          initialFocus={cancelButtonRef}
+          onClose={setOpen}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                enterTo="opacity-100 translate-y-0 sm:scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 translate-y-0 sm:scale-100"
+                leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+              >
+                <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                  <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div className="sm:flex sm:items-start">
+                      <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <PencilAltIcon
+                          className="h-6 w-6 text-red-600"
+                          aria-hidden="true"
+                        />
+                      </div>
+                      <div className="mt-6 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <Dialog.Title
+                          as="h3"
+                          className="text-lg font-medium leading-6 text-gray-900"
+                        >
+                          Modification
+                        </Dialog.Title>
+                        <form onSubmit={modifyExam}>
+                          <div className="overflow-hidden mt-10 sm:rounded-md">
+                            <div className="bg-white">
+                              <div className="grid grid-cols-6 gap-6">
+                                <div className="col-span-6 sm:col-span-3">
+                                  <label
+                                    htmlFor="first-name"
+                                    className="block text-sm font-medium text-gray-700"
+                                  >
+                                    Date
+                                  </label>
+                                  <input
+                                    type="date"
+                                    value={date}
+                                    onChange={(e) => setDate(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                  />
+                                </div>
+
+                                <div className="col-span-6 sm:col-span-3">
+                                  <label
+                                    htmlFor="last-name"
+                                    className="block text-sm font-medium text-gray-700"
+                                  >
+                                    Heure
+                                  </label>
+                                  <input
+                                    type="time"
+                                    value={time}
+                                    onChange={(e) => setTime(e.target.value)}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                  />
+                                </div>
+
+                              </div>
+                            </div>
+                            <div className=" px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                              <button
+                                type="submit"
+                                className="inline-flex w-full justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm"
+                                onClick={() => setOpenTime(false)}
+                              >
+                                Modifier
+                              </button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition.Root>
     </div>
-  )
+  );
 }
